@@ -1,36 +1,42 @@
 // Feed.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axiosInstance from "../API/AxiosInstance";
 
 export default function Feed() {
-  const [posts] = useState([
-    {
-      id: 1,
-      username: "traveler123",
-      date: "June 15, 2023 - 10:30 AM",
-      caption: "My Summer Adventure",
-      content:
-        "Today I explored the mountains and found a beautiful hidden waterfall. The hike was challenging but worth it for the view!",
-    },
-    {
-      id: 2,
-      username: "foodlover",
-      date: "June 14, 2023 - 7:15 PM",
-      caption: "New Recipe Experiment",
-      content:
-        "Tried making homemade pasta for the first time. It turned out better than expected, though I need to work on my shaping technique.",
-    },
-  ]);
+  const [posts,setPosts] = useState([]);
+  const [error,setError] = useState("");
+  const [loading,setLoading]= useState(true);
+
+  useEffect(()=>{
+
+    const fetchPosts = async()=>{
+      try{
+        const response = await axiosInstance.get("/post/getAllPosts");
+      
+        setPosts(response.data.data);
+        setLoading(false);
+      }catch(err){
+        setError("Error Fetching Post");
+        setLoading(false);
+      }
+    }
+    fetchPosts();
+  },[])
+  if (loading) {
+    return <div className="text-center flex justify-center items-cent">Loading...</div>; // Show loading text while fetching
+  }
+
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {posts.map((post) => (
-        <div key={post.id} className="bg-white rounded-lg shadow-md p-6">
+        <div key={post.post_id} className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center mb-4">
             <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center mr-4 text-white font-bold">
-              {post.username.charAt(0).toUpperCase()}
+              {post.userResponse.userName.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h3 className="font-medium text-gray-800">{post.username}</h3>
+              <h3 className="font-medium text-gray-800">{post.userResponse.firstName.charAt(0).toUpperCase()+post.userResponse.firstName.slice(1)}{" "}{post.userResponse.lastName}</h3>
               <p className="text-xs text-gray-500">{post.date}</p>
             </div>
           </div>

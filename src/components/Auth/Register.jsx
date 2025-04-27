@@ -3,30 +3,65 @@ import TextField from "@mui/material/TextField";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Button from "@mui/material/Button";
+import axiosInstance from "../API/AxiosInstance";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    username: "",
+    userName: "",
     password: "",
   });
+  const [error, setError] = useState(""); // To capture errors
+  const [success, setSuccess] = useState(""); // To capture success message
+  const navigate = useNavigate(); // Initialize useNavigate hook
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle registration logic here
-    console.log(formData);
+    
+    console.log("hi");
+
+    // Password validation
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
+
+    // API call to register user
+    try {
+      const response = await axiosInstance.post("/auth/signUp", {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        userName: formData.userName,
+        password: formData.password,
+      });
+
+      setSuccess(response.data.message); // Assuming success message comes from backend
+      setError(""); // Clear error if registration is successful
+
+      // Redirect to login page with success message
+      navigate("/login", {
+        state: { message: "Registration successful! Please log in." },
+      });
+
+    } catch (err) {
+      setError(err.response ? err.response.data.message : "Something went wrong");
+      setSuccess(""); // Clear success message if there's an error
+    }
   };
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center px-4">
       <div className="backdrop-blur-md bg-white/10 p-8 rounded-2xl shadow-2xl w-full max-w-md">
+      <div className="text-red-500 text-center">{error}</div>
         <h2 className="text-2xl font-bold text-black mb-6 text-center">CollegeBook</h2>
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <TextField
             label="First Name"
@@ -75,11 +110,11 @@ export default function Register() {
             }}
           />
           <TextField
-            label="Username"
+            label="UserName"
             variant="outlined"
             fullWidth
-            name="username"
-            value={formData.username}
+            name="userName"
+            value={formData.userName}
             onChange={handleChange}
             InputLabelProps={{ style: { color: 'black' } }}
             InputProps={{ style: { color: 'black' } }}

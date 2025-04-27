@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link, Routes, Route, useLocation } from "react-router-dom";
+import { Link, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Feed from "./Menus/Feed";
 import AddPost from "./Menus/AddPost";
 // import ChangePassword from "./Menus/ChangePassword";
@@ -20,6 +20,7 @@ import Users from "./Users/Users";
 import ChangePassword from "./Users/ChangePassword";
 
 export default function Home() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownProfile, setDropdownProfile] = useState(false);
@@ -46,8 +47,10 @@ export default function Home() {
   }, []);
 
   const handleLogout = () => {
-    alert("Logged out");
+    localStorage.removeItem("jwt");
+    
     setDropdownProfile(false);
+    navigate("/login");
   };
 
   return (
