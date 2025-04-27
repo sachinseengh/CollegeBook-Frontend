@@ -3,13 +3,27 @@ import { Link, Routes, Route, useLocation } from "react-router-dom";
 import Feed from "./Menus/Feed";
 import AddPost from "./Menus/AddPost";
 // import ChangePassword from "./Menus/ChangePassword";
-import { FiHome, FiPlus, FiUser, FiMessageSquare, FiLogOut } from "react-icons/fi";
+import {
+  FiHome,
+  FiPlus,
+  FiUser,
+  FiMessageSquare,
+  FiShield,
+  FiUsers,
+  FiLogOut,
+} from "react-icons/fi";
+import Profile from "./Menus/Profile";
+import EditPost from "./Posts/EditPost";
+import DeletePost from "./Posts/DeletePost";
+import Moderators from "./Users/Moderators";
+import Users from "./Users/Users";
+import ChangePassword from "./Users/ChangePassword";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownProfile, setDropdownProfile] = useState(false);
-  const userName = "John Doe"; // Replace this with actual user name
+  const userName = "John Doe"; // Replace with real user name
   const location = useLocation();
   const dropdownRef = useRef();
 
@@ -32,7 +46,6 @@ export default function Home() {
   }, []);
 
   const handleLogout = () => {
-    // Handle logout logic (clear tokens, etc.)
     alert("Logged out");
     setDropdownProfile(false);
   };
@@ -71,15 +84,18 @@ export default function Home() {
 
       <div className="flex flex-1 pt-16 bg-gray-50">
         {/* Sidebar for desktop */}
-        <aside className="hidden md:block w-64 bg-white shadow-lg z-20">
+        <aside className="hidden md:block w-64 bg-white shadow-lg z-20 relative">
           <div className="p-6 space-y-6">
             <nav>
               <ul className="space-y-4">
-                {[ 
+                {[
                   { label: "Home", icon: <FiHome />, path: "" },
                   { label: "Add Post", icon: <FiPlus />, path: "add-post" },
                   { label: "Profile", icon: <FiUser />, path: "profile" },
-                  { label: "Messages", icon: <FiMessageSquare />, path: "messages" },
+                  { label: "Moderator", icon: <FiShield />, path: "moderators" },
+                  { label: "User", icon: <FiUsers />, path: "users" },
+                  // { label: "Messages", icon: <FiMessageSquare />, path: "messages" }
+                  ,
                 ].map((item) => (
                   <li key={item.path}>
                     <Link to={`/home/${item.path}`}>
@@ -92,7 +108,9 @@ export default function Home() {
                         }`}
                       >
                         {item.icon}
-                        <span className="ml-4 text-lg font-medium">{item.label}</span>
+                        <span className="ml-4 text-lg font-medium">
+                          {item.label}
+                        </span>
                       </button>
                     </Link>
                   </li>
@@ -101,7 +119,7 @@ export default function Home() {
             </nav>
           </div>
 
-          {/* Logout Button at the Bottom of Sidebar */}
+          {/* Logout Button */}
           <div className="absolute bottom-6 left-0 right-0 px-6">
             <button
               onClick={handleLogout}
@@ -119,9 +137,13 @@ export default function Home() {
             <Route path="/" element={<Feed />} />
             <Route path="add-post" element={<AddPost />} />
             {/* <Route path="change-password" element={<ChangePassword />} /> */}
-            <Route path="profile" element={<div>Your Profile Information</div>} />
-            <Route path="messages" element={<div>Messages Component</div>} />
-            <Route path="*" element={<div>Select a menu from the sidebar.</div>} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="moderators" element={<Moderators/>} />
+            <Route path="users" element={<Users/>} />
+            {/* <Route path="messages" element={<div>Messages Component</div>} /> */}
+            <Route path="edit-post/:id" element={<EditPost />} />
+            <Route path="delete-post/:id" element={<DeletePost />} />
+            <Route path="change-password" element={<ChangePassword/>} />
           </Routes>
         </main>
       </div>
@@ -158,14 +180,24 @@ export default function Home() {
             <FiUser />
           </button>
         </Link>
-        <Link to="/home/messages">
+        <Link to="/home/moderators">
           <button
-            onClick={() => setActiveTab("messages")}
+            onClick={() => setActiveTab("moderator")}
             className={`p-3 rounded-full transition duration-200 ${
-              activeTab === "messages" ? "text-blue-500" : "text-gray-600"
+              activeTab === "moderator" ? "text-blue-500" : "text-gray-600"
             }`}
           >
-            <FiMessageSquare />
+            <FiShield />
+          </button>
+        </Link>
+        <Link to="/home/users">
+          <button
+            onClick={() => setActiveTab("user")}
+            className={`p-3 rounded-full transition duration-200 ${
+              activeTab === "user" ? "text-blue-500" : "text-gray-600"
+            }`}
+          >
+            <FiUsers />
           </button>
         </Link>
       </nav>
