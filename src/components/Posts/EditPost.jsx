@@ -1,8 +1,13 @@
+// src/component/menus/EditPost.jsx
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
+import axiosInstance from "../API/AxiosInstance";
 
 export default function EditPost() {
   const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [error,setError] = useState("");
 
   const [post, setPost] = useState({
     caption: "",
@@ -10,13 +15,13 @@ export default function EditPost() {
   });
 
   useEffect(() => {
-    // TODO: Fetch post details from server
-    // Simulating with dummy data for now:
-    setPost({
-      caption: "Sample Caption",
-      content: "Sample Content of the post.",
-    });
-  }, [id]);
+    if (location.state) {
+      setPost({
+        caption: location.state.caption,
+        content: location.state.content,
+      });
+    }
+  }, [location.state]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,22 +31,35 @@ export default function EditPost() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Updated post:", { id, ...post });
-
-    // TODO: Make PUT request to update post
-    alert("Post updated successfully!");
+    try {
+      await axiosInstance.put(`/post/edit/${id}`, {
+        caption: post.caption,
+        content: post.content,
+      });
+    
+      navigate("/home/profile");
+    } catch (error) {
+      console.error("Error updating post:", error);
+      setError("Error Updating Post!");
+    }
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
+    <div className="max-w-3xl mx-auto space-y-8 p-4">
       <h2 className="text-2xl font-semibold text-gray-900">Edit Post</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 shadow rounded-lg">
-        {/* ID Field */}
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 bg-white p-6 shadow rounded-lg"
+      >
+        <div className="text-red-500">{error}</div>
         <div>
-          <label htmlFor="postId" className="block text-lg font-medium text-gray-700">
+          <label
+            htmlFor="postId"
+            className="block text-lg font-medium text-gray-700"
+          >
             Post ID
           </label>
           <input
@@ -53,9 +71,11 @@ export default function EditPost() {
           />
         </div>
 
-        {/* Caption Field */}
         <div>
-          <label htmlFor="caption" className="block text-lg font-medium text-gray-700">
+          <label
+            htmlFor="caption"
+            className="block text-lg font-medium text-gray-700"
+          >
             Caption
           </label>
           <input
@@ -70,9 +90,11 @@ export default function EditPost() {
           />
         </div>
 
-        {/* Content Field */}
         <div>
-          <label htmlFor="content" className="block text-lg font-medium text-gray-700">
+          <label
+            htmlFor="content"
+            className="block text-lg font-medium text-gray-700"
+          >
             Content
           </label>
           <textarea
@@ -87,7 +109,6 @@ export default function EditPost() {
           ></textarea>
         </div>
 
-        {/* Submit Button */}
         <div className="flex justify-end">
           <button
             type="submit"

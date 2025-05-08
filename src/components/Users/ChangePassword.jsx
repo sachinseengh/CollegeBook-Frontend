@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import axiosInstance from "../API/AxiosInstance";
+import { useNavigate } from "react-router-dom";
 
 const ChangePassword = () => {
   const [oldPassword, setOldPassword] = useState(""); // For old password
@@ -6,8 +8,9 @@ const ChangePassword = () => {
   const [confirmPassword, setConfirmPassword] = useState(""); // For confirming new password
   const [error, setError] = useState(""); // For handling error messages
   const [success, setSuccess] = useState(""); // For success message
+  const  navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
 
     // Validation
@@ -26,9 +29,31 @@ const ChangePassword = () => {
       return;
     }
 
-    // Simulate password change (In a real app, you'd send this to the backend)
-    setSuccess("Password changed successfully.");
-    setError("");
+
+    try{
+
+      const response = await axiosInstance.post("/user/changePassword",{
+        oldPassword,
+        newPassword,
+        confirmPassword
+
+      });
+
+      setSuccess("Password Changed Successfully");
+
+      navigate("/login",{
+        state:{message:"Password Changed Successfully"}
+      })
+
+    }catch(err){
+      console.log(err);
+      
+      if(err.response.status===400){
+        setError("Incorrect Old Password");
+      }
+    }
+
+  
   };
 
   return (

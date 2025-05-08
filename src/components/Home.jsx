@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Feed from "./Menus/Feed";
 import AddPost from "./Menus/AddPost";
-// import ChangePassword from "./Menus/ChangePassword";
 import {
   FiHome,
   FiPlus,
@@ -18,17 +17,33 @@ import DeletePost from "./Posts/DeletePost";
 import Moderators from "./Users/Moderators";
 import Users from "./Users/Users";
 import ChangePassword from "./Users/ChangePassword";
+import NotFound from "./NotFound";
+import axiosInstance from "./API/AxiosInstance";
 
 export default function Home() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownProfile, setDropdownProfile] = useState(false);
-  const userName = "John Doe"; // Replace with real user name
   const location = useLocation();
   const dropdownRef = useRef();
+  const [user, setUser] = useState({});
 
-  const firstLetter = userName.charAt(0).toUpperCase();
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axiosInstance.get("/user/me");
+        setUser(response.data.data);
+      } catch (err) {
+        navigate("/login", {
+          state: { message: "Session Expired ! Please Log in again" },
+        });
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const firstLetter = user?.firstName?.charAt(0)?.toUpperCase() || " ";
 
   useEffect(() => {
     const tab = location.pathname.split("/")[2] || "";
@@ -48,10 +63,25 @@ export default function Home() {
 
   const handleLogout = () => {
     localStorage.removeItem("jwt");
-    
     setDropdownProfile(false);
     navigate("/login");
   };
+
+  // Menu config with required roles
+  const sidebarMenu = [
+    { label: "Home", icon: <FiHome />, path: "", roles: ["user", "moderator", "admin"] },
+    { label: "Add Post", icon: <FiPlus />, path: "add-post", roles: ["user", "moderator", "admin"] },
+    { label: "Profile", icon: <FiUser />, path: "profile", roles: ["user", "moderator", "admin"] },
+    { label: "User", icon: <FiUsers />, path: "users", roles: ["moderator", "admin"] },
+    { label: "Moderator", icon: <FiShield />, path: "moderators", roles: ["admin"] },
+  ];
+
+  const hasRole = (requiredRoles) =>
+    user?.role?.some((r) => requiredRoles.includes(r.toLowerCase()));
+
+  const filteredSidebarMenu = sidebarMenu.filter((item) =>
+    hasRole(item.roles)
+  );
 
   return (
     <div className="flex flex-col h-screen">
@@ -88,18 +118,10 @@ export default function Home() {
       <div className="flex flex-1 pt-16 bg-gray-50">
         {/* Sidebar for desktop */}
         <aside className="hidden md:block w-64 bg-white shadow-lg z-20 relative">
-          <div className="p-6 space-y-6">
+          <div className="p-6 space-y-6 fixed">
             <nav>
               <ul className="space-y-4">
-                {[
-                  { label: "Home", icon: <FiHome />, path: "" },
-                  { label: "Add Post", icon: <FiPlus />, path: "add-post" },
-                  { label: "Profile", icon: <FiUser />, path: "profile" },
-                  { label: "Moderator", icon: <FiShield />, path: "moderators" },
-                  { label: "User", icon: <FiUsers />, path: "users" },
-                  // { label: "Messages", icon: <FiMessageSquare />, path: "messages" }
-                  ,
-                ].map((item) => (
+                {filteredSidebarMenu.map((item) => (
                   <li key={item.path}>
                     <Link to={`/home/${item.path}`}>
                       <button
@@ -111,9 +133,7 @@ export default function Home() {
                         }`}
                       >
                         {item.icon}
-                        <span className="ml-4 text-lg font-medium">
-                          {item.label}
-                        </span>
+                        <span className="ml-4 text-lg font-medium">{item.label}</span>
                       </button>
                     </Link>
                   </li>
@@ -121,14 +141,12 @@ export default function Home() {
               </ul>
             </nav>
           </div>
-
-          {/* Logout Button */}
-          <div className="absolute bottom-6 left-0 right-0 px-6">
+          <div className="fixed bottom-6 w-64 px-6">
             <button
               onClick={handleLogout}
               className="w-full flex items-center p-3 rounded-md text-gray-700 hover:bg-gray-100"
             >
-              <FiLogOut className="mr-4" />
+              <FiLogOut className="mr-3" />
               <span className="text-lg font-medium">Logout</span>
             </button>
           </div>
@@ -139,70 +157,31 @@ export default function Home() {
           <Routes>
             <Route path="/" element={<Feed />} />
             <Route path="add-post" element={<AddPost />} />
-            {/* <Route path="change-password" element={<ChangePassword />} /> */}
             <Route path="profile" element={<Profile />} />
-            <Route path="moderators" element={<Moderators/>} />
-            <Route path="users" element={<Users/>} />
-            {/* <Route path="messages" element={<div>Messages Component</div>} /> */}
+            <Route path="moderators" element={<Moderators />} />
+            <Route path="users" element={<Users />} />
             <Route path="edit-post/:id" element={<EditPost />} />
             <Route path="delete-post/:id" element={<DeletePost />} />
-            <Route path="change-password" element={<ChangePassword/>} />
+            <Route path="change-password" element={<ChangePassword />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
       </div>
 
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white shadow-lg z-30 flex items-center justify-around">
-        <Link to="/home">
-          <button
-            onClick={() => setActiveTab("")}
-            className={`p-3 rounded-full transition duration-200 ${
-              activeTab === "" ? "text-blue-500" : "text-gray-600"
-            }`}
-          >
-            <FiHome />
-          </button>
-        </Link>
-        <Link to="/home/add-post">
-          <button
-            onClick={() => setActiveTab("add-post")}
-            className={`p-3 rounded-full transition duration-200 ${
-              activeTab === "add-post" ? "text-blue-500" : "text-gray-600"
-            }`}
-          >
-            <FiPlus />
-          </button>
-        </Link>
-        <Link to="/home/profile">
-          <button
-            onClick={() => setActiveTab("profile")}
-            className={`p-3 rounded-full transition duration-200 ${
-              activeTab === "profile" ? "text-blue-500" : "text-gray-600"
-            }`}
-          >
-            <FiUser />
-          </button>
-        </Link>
-        <Link to="/home/moderators">
-          <button
-            onClick={() => setActiveTab("moderator")}
-            className={`p-3 rounded-full transition duration-200 ${
-              activeTab === "moderator" ? "text-blue-500" : "text-gray-600"
-            }`}
-          >
-            <FiShield />
-          </button>
-        </Link>
-        <Link to="/home/users">
-          <button
-            onClick={() => setActiveTab("user")}
-            className={`p-3 rounded-full transition duration-200 ${
-              activeTab === "user" ? "text-blue-500" : "text-gray-600"
-            }`}
-          >
-            <FiUsers />
-          </button>
-        </Link>
+        {filteredSidebarMenu.map((item) => (
+          <Link key={item.path} to={`/home/${item.path}`}>
+            <button
+              onClick={() => setActiveTab(item.path)}
+              className={`p-3 rounded-full transition duration-200 ${
+                activeTab === item.path ? "text-blue-500" : "text-gray-600"
+              }`}
+            >
+              {item.icon}
+            </button>
+          </Link>
+        ))}
       </nav>
 
       {/* Mobile Profile Dropdown */}

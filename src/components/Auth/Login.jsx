@@ -44,7 +44,9 @@ export default function Login() {
       setSuccess("Login SuccessFul");
       setError("")
 
-      navigate("/home");
+      navigate("/home",{
+        state:{username:formData.userName}
+      });
 
 
     } catch (error) {
@@ -83,6 +85,7 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             <TextField
+            required
               label="Username"
               variant="outlined"
               fullWidth
@@ -106,6 +109,7 @@ export default function Login() {
               }}
             />
             <TextField
+            required
               label="Password"
               variant="outlined"
               fullWidth
