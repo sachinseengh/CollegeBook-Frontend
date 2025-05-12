@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8080/', // Base URL
+  baseURL: 'https://collegebook-backend-production.up.railway.app', // Base URL
   headers: {
     'Content-Type': 'application/json', // Add any default headers
   },
