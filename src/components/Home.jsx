@@ -22,6 +22,7 @@ import axiosInstance from "./API/AxiosInstance";
 
 export default function Home() {
   const navigate = useNavigate();
+  const [error,setError] = useState("");
   const [activeTab, setActiveTab] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownProfile, setDropdownProfile] = useState(false);
@@ -35,9 +36,15 @@ export default function Home() {
         const response = await axiosInstance.get("/user/me");
         setUser(response.data.data);
       } catch (err) {
+
+
+        if(err.response.status === 500){
+          setError("Internal server error");
+        }else{
         navigate("/login", {
           state: { message: "Session Expired ! Please Log in again" },
         });
+      }
       }
     };
     fetchUser();
