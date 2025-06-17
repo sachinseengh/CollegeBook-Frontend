@@ -10,6 +10,7 @@ import {
   FiShield,
   FiUsers,
   FiLogOut,
+  FiBook
 } from "react-icons/fi";
 import Profile from "./Menus/Profile";
 import EditPost from "./Posts/EditPost";
@@ -19,6 +20,7 @@ import Users from "./Users/Users";
 import ChangePassword from "./Users/ChangePassword";
 import NotFound from "./NotFound";
 import axiosInstance from "./API/AxiosInstance";
+import Notes from "./Notes/Notes";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -81,6 +83,8 @@ export default function Home() {
     { label: "Profile", icon: <FiUser />, path: "profile", roles: ["user", "moderator", "admin"] },
     { label: "User", icon: <FiUsers />, path: "users", roles: ["moderator", "admin"] },
     { label: "Moderator", icon: <FiShield />, path: "moderators", roles: ["admin"] },
+    { label: "Notes", icon: <FiBook />, path: "notes", roles: ["user", "moderator", "admin"] },
+
   ];
 
   const hasRole = (requiredRoles) =>
@@ -170,6 +174,8 @@ export default function Home() {
             <Route path="edit-post/:id" element={<EditPost />} />
             <Route path="delete-post/:id" element={<DeletePost />} />
             <Route path="change-password" element={<ChangePassword />} />
+            <Route path="notes" element={<Notes />} />
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

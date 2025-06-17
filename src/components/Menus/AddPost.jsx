@@ -1,66 +1,137 @@
 import React, { useState } from "react";
-import axiosInstance from "../API/AxiosInstance"; // Your axios instance
+import axiosInstance from "../API/AxiosInstance";
 import { useNavigate } from "react-router-dom";
 
 export default function AddPost() {
-  const [caption, setCaption] = useState(""); // State for caption
-  const [content, setContent] = useState(""); // State for content
-  const [file, setFile] = useState(null); // State for the file
-  const [fileName, setFileName] = useState(""); // State for file name
-  const [successMessage, setSuccessMessage] = useState(""); // Success message
-  const [errorMessage, setErrorMessage] = useState(""); // Error message
-  const navigate = useNavigate(); // For navigation
+  const [caption, setCaption] = useState("");
+  const [content, setContent] = useState("");
+  const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isNote, setIsNote] = useState(false);
+  const [postType, setPostType] = useState("post");
+  const [semester, setSemester] = useState("");
+  const [subject, setSubject] = useState("");
+  const navigate = useNavigate();
 
-  // Handle file selection
+  const subjectsBySemester = {
+    First: [
+      "Computer Fundamentals & Applications",
+      "Society and Technology",
+      "English I",
+      "Mathematics I",
+      "Digital Logic",
+    ],
+    Second: [
+      "C Programming",
+      "Financial Accounting",
+      "English II",
+      "Mathematics II",
+      "Microprocessor and Computer Architecture",
+    ],
+    Third: [
+      "Data Structures and Algorithms",
+      "Probability and Statistics",
+      "System Analysis and Design",
+      "OOP in Java",
+      "Web Technology",
+    ],
+    Fourth: [
+      "Operating System",
+      "Numerical Methods",
+      "Software Engineering",
+      "Scripting Language",
+      "Database Management System",
+      "Project I",
+    ],
+    Fifth: [
+      "MIS and E-Business",
+      "DotNet Technology",
+      "Computer Networking",
+      "Introduction to Management",
+      "Computer Graphics and Animation",
+    ],
+    Sixth: [
+      "Mobile Programming",
+      "Distributed System",
+      "Applied Economics",
+      "Advanced Java Programming",
+      "Network Programming",
+      "Project II",
+    ],
+    Seventh: [
+      "Cyber Law and Professional Ethics",
+      "Cloud Computing",
+      "Internship",
+      "Elective I",
+      "Elective II",
+    ],
+    Eighth: [
+      "Operations Research",
+      "Project III",
+      "Elective III",
+      "Elective IV",
+    ],
+  };
+
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
-      setFileName(selectedFile.name); // Set the file name
+      setFileName(selectedFile.name);
     }
   };
 
-  // Remove selected file
   const handleRemoveFile = () => {
     setFile(null);
-    setFileName(""); // Reset file name when removed
+    setFileName("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation: Caption is required
     if (!caption.trim()) {
       setErrorMessage("Caption is required.");
       setSuccessMessage("");
       return;
     }
 
+    if (isNote && (!semester || !subject)) {
+      setErrorMessage("Please select both semester and subject.");
+      setSuccessMessage("");
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("caption", caption); // Append caption
-    formData.append("content", content); // Append content (optional)
-    if (file) {
-      formData.append("file", file); // Append file if present
+    formData.append("caption", caption);
+    formData.append("content", content);
+    formData.append("isNote", isNote);
+    if (file) formData.append("file", file);
+    if (isNote) {
+      formData.append("semester", semester);
+      formData.append("subject", subject);
     }
 
     try {
-      // Send the post request with FormData
-      const response = await axiosInstance.post("/post/create/", formData, {
+      await axiosInstance.post("/post/create/", formData, {
         headers: {
-          "Content-Type": "multipart/form-data", // Ensure multipart for file upload
+          "Content-Type": "multipart/form-data",
         },
       });
 
-      // On success, clear inputs and show success message
       setSuccessMessage("Post created successfully!");
       setErrorMessage("");
       setCaption("");
       setContent("");
-      setFile(null); // Reset file after success
-      setFileName(""); // Reset file name after success
-      navigate("/home"); // Redirect to home
+      setFile(null);
+      setFileName("");
+      setSemester("");
+      setSubject("");
+      setPostType("post");
+      setIsNote(false);
+      navigate("/home");
     } catch (error) {
-      // On failure, show error message
       setErrorMessage("Failed to create post. Please try again.");
       setSuccessMessage("");
     }
@@ -70,14 +141,11 @@ export default function AddPost() {
     <div className="max-w-3xl mx-auto p-6 space-y-6 bg-white shadow-md rounded-lg">
       <h2 className="text-3xl font-semibold text-gray-800">Create a New Post</h2>
 
-      {/* Success Message */}
       {successMessage && (
         <div className="p-4 text-green-700 bg-green-100 rounded-md border border-green-300">
           {successMessage}
         </div>
       )}
-
-      {/* Error Message */}
       {errorMessage && (
         <div className="p-4 text-red-700 bg-red-100 rounded-md border border-red-300">
           {errorMessage}
@@ -85,7 +153,86 @@ export default function AddPost() {
       )}
 
       <form className="space-y-5" onSubmit={handleSubmit}>
-        {/* Caption Input */}
+        {/* Post Type */}
+        <div className="flex items-center space-x-6 mb-4">
+          <label className="flex items-center space-x-2">
+            <input
+              type="radio"
+              name="postType"
+              value="post"
+              checked={postType === "post"}
+              onChange={() => {
+                setPostType("post");
+                setIsNote(false);
+                setSemester("");
+                setSubject("");
+              }}
+              className="form-radio text-blue-600"
+            />
+            <span>Post</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <input
+              type="radio"
+              name="postType"
+              value="note"
+              checked={postType === "note"}
+              onChange={() => {
+                setPostType("note");
+                setIsNote(true);
+              }}
+              className="form-radio text-blue-600"
+            />
+            <span>Post with Note</span>
+          </label>
+        </div>
+
+        {postType === "note" && (
+          <>
+            <div className="mb-4">
+              <p className="font-medium text-lg mb-2">Select Semester</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {Object.keys(subjectsBySemester).map((label, i) => (
+                  <label key={i} className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      name="semester"
+                      value={label}
+                      checked={semester === label}
+                      onChange={() => {
+                        setSemester(label);
+                        setSubject("");
+                      }}
+                      className="form-radio text-blue-600"
+                    />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {semester && (
+              <div className="mb-4">
+                <label className="block text-lg font-medium mb-1">
+                  Select Subject
+                </label>
+                <select
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg"
+                >
+                  <option value="">Select Subject</option>
+                  {(subjectsBySemester[semester] || []).map((sub, idx) => (
+                    <option key={idx} value={sub}>
+                      {sub}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </>
+        )}
+
         <div>
           <label htmlFor="caption" className="block text-lg font-medium text-gray-700">
             Caption
@@ -95,12 +242,11 @@ export default function AddPost() {
             type="text"
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm"
             placeholder="Enter caption"
           />
         </div>
 
-        {/* Content Input */}
         <div>
           <label htmlFor="content" className="block text-lg font-medium text-gray-700">
             Content
@@ -109,50 +255,72 @@ export default function AddPost() {
             id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm"
             placeholder="Enter post content"
             rows="4"
           />
         </div>
 
-        {/* File Upload Box */}
+        {/* File Upload */}
         <div className="border-2 border-dashed p-4 rounded-lg text-center">
-          {/* Show a file upload prompt if no file is selected */}
           {!file ? (
             <>
               <label htmlFor="file-upload" className="cursor-pointer text-blue-600">
-                <span>Click to upload an image or video</span>
+                Click to upload an image, video, or PDF
               </label>
               <input
                 type="file"
                 id="file-upload"
-                accept="image/*,video/*"
+                accept="image/*,video/*,application/pdf"
                 onChange={handleFileChange}
                 className="hidden"
               />
             </>
           ) : (
-            // Show the file preview and file name if selected
             <div className="relative">
-              {/* File preview */}
-              {file.type.startsWith("image") ? (
+              {file.type.startsWith("image/") ? (
                 <img
                   src={URL.createObjectURL(file)}
                   alt="Preview"
                   className="w-full h-48 object-cover rounded-lg"
                 />
-              ) : (
+              ) : file.type.startsWith("video/") ? (
                 <video
                   controls
                   className="w-full h-48 object-cover rounded-lg"
                   src={URL.createObjectURL(file)}
                 />
+              ) : file.type === "application/pdf" ? (
+                <div className="w-full h-48 flex flex-col items-center justify-center border border-gray-300 rounded-lg bg-gray-50 p-4 text-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-12 w-12 text-red-600 mb-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"
+                    />
+                    <path d="M14 2v6h6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <p className="font-medium text-gray-800">{file.name}</p>
+                  <a
+                    href={URL.createObjectURL(file)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline mt-2"
+                  >
+                    View PDF
+                  </a>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">Unsupported file format</p>
               )}
-
-              {/* Display file name */}
               <div className="mt-2 text-gray-800 font-semibold">{fileName}</div>
-
-              {/* Cross button to remove file */}
               <button
                 type="button"
                 onClick={handleRemoveFile}
@@ -164,7 +332,6 @@ export default function AddPost() {
           )}
         </div>
 
-        {/* Submit Button */}
         <div>
           <button
             type="submit"

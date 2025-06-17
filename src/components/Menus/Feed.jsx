@@ -41,21 +41,27 @@ export default function Feed() {
     const now = new Date();
     const diffInSeconds = Math.floor((now - postDate) / 1000);
     if (diffInSeconds < 60) return "Just now";
-    else if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min ago`;
-    else if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hour ago`;
-    else if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} day ago`;
-    else return postDate.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
+    else if (diffInSeconds < 3600)
+      return `${Math.floor(diffInSeconds / 60)} min ago`;
+    else if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)} hour ago`;
+    else if (diffInSeconds < 604800)
+      return `${Math.floor(diffInSeconds / 86400)} day ago`;
+    else
+      return postDate.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
   };
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      
       {posts.map((post) => (
+        
         <div
           key={post.post_id}
           className="bg-white rounded-lg shadow-md p-6 relative"
@@ -67,11 +73,8 @@ export default function Feed() {
               className="absolute top-4 right-4 text-red-600 hover:text-red-800"
               title="Delete Post"
             >
-              
               <FiTrash2 size={20} />
             </button>
-
-                              
           )}
 
           <div className="flex items-center mb-4">
@@ -95,7 +98,6 @@ export default function Feed() {
                 ))}
               </div>
               <p className="text-xs text-gray-500">{formatDate(post.date)}</p>
-          
             </div>
           </div>
 
@@ -123,6 +125,41 @@ export default function Feed() {
               <source src={post.fileUrl} type={post.fileType} />
               Your browser does not support the video tag.
             </video>
+          )}
+
+          {/* 📄 PDF Preview */}
+          {post.fileUrl && post.fileType === "application/pdf" && (
+            <div className="mt-4">
+              <a
+                href={post.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-blue-600 hover:underline"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-red-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"
+                  />
+                  <path
+                    d="M14 2v6h6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className="font-medium">
+                  {post.fileName || "View PDF"}
+                </span>
+              </a>
+            </div>
           )}
         </div>
       ))}
