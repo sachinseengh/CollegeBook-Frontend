@@ -1,5 +1,6 @@
 // /src/api/axiosInstance.js
 import axios from 'axios';
+console.log("Ashish");
 
 const axiosInstance = axios.create({
   // baseURL: 'https://collegebook-backend-production.up.railway.app',
@@ -12,6 +13,7 @@ const axiosInstance = axios.create({
 
 // Add a request interceptor to include JWT token in headers
 axiosInstance.interceptors.request.use(
+
   (config) => {
     const token = localStorage.getItem('jwt'); // Get JWT from localStorage
     if (token) {
