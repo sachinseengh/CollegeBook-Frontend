@@ -15,7 +15,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
 
   (config) => {
-    const publicEndpoints = ['/auth/signUp', '/auth/login'];
+    const publicEndpoints = ['/auth/signUp', '/auth/login','/auth/forget-password'];
 
     // Check if the request URL ends with any public endpoint
     const isPublic = publicEndpoints.some(endpoint => config.url.endsWith(endpoint));

@@ -8,6 +8,8 @@ import NotFound from './components/NotFound';
 
 import ResendVerificationEmail from './components/Auth/ResendVerificationEmail';
 import Verify from './components/Auth/Verify';
+import ForgotPassword from './components/Auth/ForgetPassword';
+import ChangeForgetPassword from './components/Auth/ChangeForgetPassword';
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/verify-email" element={<Verify />} />
         <Route path="/resend-email" element={<ResendVerificationEmail />} />
+        <Route path="/forget-password" element={<ForgotPassword/>}/>
+        <Route path="/change-password" element={<ChangeForgetPassword />} />
         <Route path="/register" element={<Register />} />
    
         <Route path="*" element={<NotFound/>}/>

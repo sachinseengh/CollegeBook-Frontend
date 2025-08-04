@@ -57,56 +57,59 @@ export default function Login() {
     setSuccess("");
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  localStorage.removeItem("jwt");
-  setError("");
-  setSuccess("");
-  setMessage("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    localStorage.removeItem("jwt");
+    setError("");
+    setSuccess("");
+    setMessage("");
 
-  console.log("Submitting login with:", formData);
+    console.log("Submitting login with:", formData);
 
-  try {
-    const response = await axiosInstance.post("/auth/signIn", {
-      userName: formData.userName,
-      password: formData.password,
-    });
+    try {
+      const response = await axiosInstance.post("/auth/signIn", {
+        userName: formData.userName,
+        password: formData.password,
+      });
 
-    console.log("Login response:", response.data);
+      console.log("Login response:", response.data);
 
-    localStorage.setItem("jwt", response.data.data); // Adjust if token is elsewhere
-    setSuccess("Login Successful");
+      localStorage.setItem("jwt", response.data.data); // Adjust if token is elsewhere
+      setSuccess("Login Successful");
 
-    console.log("Stored JWT:", localStorage.getItem("jwt"));
-    navigate("/home", {
-      state: { username: formData.userName },
-    });
-  } catch (err) {
-    const status = err.response?.status;
-    const serverMsg =
-      typeof err.response?.data === "string"
-        ? err.response.data
-        : err.response?.data?.error || err.response?.data?.message || "Unknown error";
+      console.log("Stored JWT:", localStorage.getItem("jwt"));
+      navigate("/home", {
+        state: { username: formData.userName },
+      });
+    } catch (err) {
+      const status = err.response?.status;
+      const serverMsg =
+        typeof err.response?.data === "string"
+          ? err.response.data
+          : err.response?.data?.error ||
+            err.response?.data?.message ||
+            "Unknown error";
 
-    console.error("Login error:", status, serverMsg);
+      console.error("Login error:", status, serverMsg);
 
-    if (serverMsg === "Email not verified") {
-      navigate(`/resend-email?email=${encodeURIComponent(formData.userName)}`);
-    } else if (serverMsg === "TokenExpired") {
-      navigate(`/resend-verification?email=${encodeURIComponent(formData.userName)}`);
-    } else if (status === 400 || status === 401) {
-      setError(serverMsg || "Invalid username or password.");
-    } else if (status === 404 && serverMsg === "User not found") {
-      setError("User not found.");
-    } else {
-      setError("Something went wrong. Please try again.");
+      if (serverMsg === "Email not verified") {
+        navigate(
+          `/resend-email?email=${encodeURIComponent(formData.userName)}`
+        );
+      
+      } else if (status === 400 || status === 401) {
+        setError(serverMsg || "Invalid username or password.");
+      } else if (status === 404 && serverMsg === "User not found") {
+        setError("User not found.");
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     }
-  }
-};
-
+  };
 
   const handleGoogleLogin = () => {
-    const clientId = "721082640319-0ldnn9hvqmm57j1am401cq0pnn1idkq0.apps.googleusercontent.com"; // Your Google client ID
+    const clientId =
+      "721082640319-0ldnn9hvqmm57j1am401cq0pnn1idkq0.apps.googleusercontent.com"; // Your Google client ID
     const redirectUri = "http://localhost:8080/auth/google/callback";
     const scope = "openid email profile";
     const responseType = "code";
@@ -129,11 +132,17 @@ export default function Login() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center px-4">
       <div className="backdrop-blur-md bg-white/10 p-8 rounded-2xl shadow-2xl w-full max-w-md">
-        {message && <div className="text-green-500 text-center mb-2">{message}</div>}
-        {success && <div className="text-green-500 text-center mb-2">{success}</div>}
+        {message && (
+          <div className="text-green-500 text-center mb-2">{message}</div>
+        )}
+        {success && (
+          <div className="text-green-500 text-center mb-2">{success}</div>
+        )}
         {error && <div className="text-red-500 text-center mb-2">{error}</div>}
 
-        <h2 className="text-2xl font-bold text-black mb-6 text-center">CollegeBook</h2>
+        <h2 className="text-2xl font-bold text-black mb-6 text-center">
+          CollegeBook
+        </h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <TextField
@@ -227,6 +236,13 @@ export default function Login() {
           No account?{" "}
           <a href="/register" className="underline hover:text-black/70">
             Go to Registration Page
+          </a>
+        </p>
+
+        <p className="text-black mt-2 text-sm text-center">
+          Forget password?{" "}
+          <a href="/forget-password" className="underline hover:text-black/70">
+            Click here
           </a>
         </p>
       </div>
