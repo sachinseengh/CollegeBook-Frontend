@@ -6,6 +6,9 @@ import Register from './components/Auth/Register';
 import Home from './components/Home';
 import NotFound from './components/NotFound';
 
+import ResendVerificationEmail from './components/Auth/ResendVerificationEmail';
+import Verify from './components/Auth/Verify';
+
 function App() {
   return (
     <BrowserRouter>
@@ -13,6 +16,8 @@ function App() {
         <Route path="/" element={<Home/>}/>
         <Route path="/home/*" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/verify-email" element={<Verify />} />
+        <Route path="/resend-email" element={<ResendVerificationEmail />} />
         <Route path="/register" element={<Register />} />
    
         <Route path="*" element={<NotFound/>}/>

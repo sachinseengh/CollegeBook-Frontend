@@ -13,15 +13,21 @@ const axiosInstance = axios.create({
 // Add a request interceptor to include JWT token in headers
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('jwt'); // Get JWT from localStorage
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`; // Add token in Authorization header
+    const publicEndpoints = ['/auth/signUp', '/auth/login'];
+
+    // Check if the request URL ends with any public endpoint
+    const isPublic = publicEndpoints.some(endpoint => config.url.endsWith(endpoint));
+
+    if (!isPublic) {
+      const token = localStorage.getItem('jwt');
+      if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+      }
     }
+
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default axiosInstance;
